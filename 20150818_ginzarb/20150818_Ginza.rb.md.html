@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>その昔、RJSというものがあった</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+その昔、RJSというものがあった
+====
+
+@elcondor
+
+---
+
+# RJSって何?
+
+- Ruby JavaScript、あるいは Remote JavaScriptの略
+- あるいはJavaScriptGeneratorTemplates
+- DOM操作のための、Rubyによる言語内DSL
+  - 動的にJavaScriptを生成してクライアントサイドに返す
+- Prototype.jsに依存
+
+---
+
+# 例えば?
+
+```ruby
+page[:item_form].remove # => $('item_form').remove()
+
+page.select('p.hint').each do |hint|
+  hint.visual_effect :highlight
+end
+# =>
+# $$("p.hint").each(function(value, index) {
+#   value.visualEffect("highlight");
+# });
+```
+
+※ちなみにこの$はPrototype.jsの$です(みんなわすれちゃったかなー)
+
+---
+
+# 利用感は?
+
+総じて良く、メンバからも好評
+
+- JS脳へのコンテキストスイッチコストがない
+  - JS苦手な人にもすぐ書いてもらえた
+- erbで書くと、escapeとかほにゃららあって割と面倒くさい(ですよね?)
+
+
+※個人の感想です
+
+---
+
+# 今はないの?
+
+- Rails3.1で切り離された(→prototype-rails)
+  - 標準JSフレームワークがPrototype.jsからjQueryに移行したため
+  - jQueryでは使えない
+
+---
+
+# そこでjQuery対応した
+
+condor/versatile_rjs
+
+- 放置してるので、Rails4系で動くかどうかはわかりません...
+- 未実装な機能も結構あります...
+
+---
+
+# 実装するのに必要だったこと
+
+Template Handlerの実装
+
+- Rubyコードを生成するコードを実装する
+  - cf. https://gist.github.com/davidjrice/3014948
+- エラー表示の最適化が難しかった
+  - テンプレートと生成コードの対応する行数を合わせないと、当該行を表示できない
+  - この辺、Rails4.x系だとどうなんでしょう?
+
+---
+
+# 実装するのに必要だったこと
+
+DSLの解釈: 意外に難しくない
+
+- DSLで難しいのは、「自然な」文法設計で、ここにすごく時間がかかる
+  - RJSは既に洗練された文法があったので楽
+- RJSのeachをJSのeachにするのだけは手間取った
+  - ついそこで評価してしまう
+  - ブロック引数むずい
+
+---
+
+# 実装した結果
+
+役に立った
+- 既存のコードベースを移行せずに済んだ
+  - RJSで実装したコード資産が当時結構あった
+- ERBベースの動的JSは難しい
+  - JSを書き慣れない人に書かせるのは拷問
+  - 書き慣れた人でもescapeとかで結構ハマる
+
+---
+
+# 実装した結果
+
+楽しかった
+
+- 勉強になる
+  - Rubyの変数やメソッドのコンテキストに敏感になる
+- 他の人に楽させてあげられると幸せ
+
+---
+
+# 結論
+
+- JS怖い人は結構いる
+- 自分の今使っている技術要素がサポートされなくなったら、延命に挑戦すると楽しいかも
+- Rails拡張コワクナイヨー
+  - いろいろエントリポイントが用意されているので
+  - そこを踏み越えて無理やりごにょっとすると血を見る
+
+    </textarea>
+    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>
